@@ -1,0 +1,11 @@
+{
+  "wordlist_base": "G:\\wordlists\\",
+  "log_path":"test.log",
+  "cwd": ".",
+  "hashcat_base": "G:\\hashcat-6.2.4\\",
+  "port": 9999,
+  "attachment_dir": "",
+  "groupID": "<group-id>",
+  "host": "127.0.0.1",
+  "maxLength": 8000
+}
