@@ -45,3 +45,5 @@ In the response, locate your desired group and extract the id. Add this string t
 Spawning a new powershell process and interacting with it via Signal:
   
 ![Powershell demo](https://github.com/headszot/PowerSignal/blob/main/demo/signal-ps-demo.png?raw=true)
+  
+To background an interactive job, send !b or !back. Typing help will bring up a list of available functions.
