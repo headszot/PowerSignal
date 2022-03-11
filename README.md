@@ -8,9 +8,10 @@ Run arbitrary powershell commands, or run hashcat (with configuration) on upload
 
 ## Dependencies
 
-Relies on the wonderful signal-cli project by AsamK
+Relies on the wonderful signal-cli project by AsamK, and the org.json parser by stleary:
 
 https://github.com/AsamK/signal-cli
+https://github.com/stleary/JSON-java
 
 ## Setup
 
