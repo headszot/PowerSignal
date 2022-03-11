@@ -27,3 +27,19 @@ Run signal-cli in daemon mode listening on your chosen port e.g.
 ./signal-cli -u '+<your-registered-phone-number>' daemon --socket 9999
   
 All your received messages will now be synced to signal-cli.
+  
+### Setting up the RPC group
+  
+You must first create a group (or use an existing one) and get its base64 groupID. Run the signal-cli in JsonRpc mode:
+  
+./signal-cli -u '+<your-registered-phone-number>' JsonRpc
+
+Send the following JSON:
+  
+{"id":"0","jsonrpc", "2.0","method", "listGroups"}
+  
+In the response, locate your desired group and extract the id. Add this string to the config.json file under the "groupID" property.
+  
+## Demo
+  
+Spawning a new powershell process and interacting with it via Signal:
