@@ -47,3 +47,11 @@ Spawning a new powershell process and interacting with it via Signal:
 ![Powershell demo](https://github.com/headszot/PowerSignal/blob/main/demo/signal-ps-demo.png?raw=true)
   
 To background an interactive job, send !b or !back. Typing help will bring up a list of available functions.
+  
+Running a hashcat job on an MD5 hash (mode 0, hash type 0):
+  
+![hashcat demo 1](https://github.com/headszot/PowerSignal/blob/main/demo/hashcat-example.PNG?raw=true)
+
+Interact with the hashcat job via "jobs interact <id>" and updates will be delivered every 10 seconds:
+  
+![hashcat demo 2](https://github.com/headszot/PowerSignal/blob/main/demo/hashcat-example-complete.PNG?raw=true)
