@@ -4,6 +4,8 @@ Have you ever wanted to remotely control your computer via Signal? Now you can!
 
 Usage: java -jar .\PowerSignal.jar .\config.json
 
+Run arbitrary powershell commands, or run hashcat (with configuration) on uploaded hash files - from anywhere! See demos section for examples.
+
 ## Dependencies
 
 Relies on the wonderful signal-cli project by AsamK
@@ -20,6 +22,18 @@ You can setup signal-cli as a new device with a new phone number, or (preferrabl
   
 Then scan the produced QR with your mobile device to finish the linking process.
 
+### Setting up the RPC group
+  
+You must create a group (or use an existing one) and get its base64 groupID. Run the signal-cli in JsonRpc mode:
+  
+./signal-cli -u '+\<your-registered-phone-number\>' JsonRpc
+
+Send the following JSON:
+  
+{"id":"0","jsonrpc", "2.0","method", "listGroups"}
+  
+In the response, locate your desired group and extract its group id. Add this string to the config.json file under the "groupID" property.
+
 ### Running the signal-cli daemon
 
 Run signal-cli in daemon mode listening on your chosen port e.g.
@@ -28,19 +42,7 @@ Run signal-cli in daemon mode listening on your chosen port e.g.
   
 All your received messages will now be synced to signal-cli.
   
-### Setting up the RPC group
-  
-You must first create a group (or use an existing one) and get its base64 groupID. Run the signal-cli in JsonRpc mode:
-  
-./signal-cli -u '+\<your-registered-phone-number\>' JsonRpc
-
-Send the following JSON:
-  
-{"id":"0","jsonrpc", "2.0","method", "listGroups"}
-  
-In the response, locate your desired group and extract the id. Add this string to the config.json file under the "groupID" property.
-  
-## Demo
+## Demos
   
 Spawning a new powershell process and interacting with it via Signal:
   
