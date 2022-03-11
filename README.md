@@ -16,7 +16,7 @@ https://github.com/AsamK/signal-cli
 
 You can setup signal-cli as a new device with a new phone number, or (preferrably) add your server as a linked device on your existing Signal account:
 
-./signal-cli link -n <your-server-name> | qrencode -t ANSI
+./signal-cli link -n \<your-server-name\> | qrencode -t ANSI
   
 Then scan the produced QR with your mobile device to finish the linking process.
 
@@ -24,7 +24,7 @@ Then scan the produced QR with your mobile device to finish the linking process.
 
 Run signal-cli in daemon mode listening on your chosen port e.g.
   
-./signal-cli -u '+<your-registered-phone-number>' daemon --socket 9999
+./signal-cli -u '+\<your-registered-phone-number\>' daemon --socket 9999
   
 All your received messages will now be synced to signal-cli.
   
@@ -32,7 +32,7 @@ All your received messages will now be synced to signal-cli.
   
 You must first create a group (or use an existing one) and get its base64 groupID. Run the signal-cli in JsonRpc mode:
   
-./signal-cli -u '+<your-registered-phone-number>' JsonRpc
+./signal-cli -u '+\<your-registered-phone-number\>' JsonRpc
 
 Send the following JSON:
   
@@ -52,6 +52,6 @@ Running a hashcat job on an MD5 hash (mode 0, hash type 0):
   
 ![hashcat demo 1](https://github.com/headszot/PowerSignal/blob/main/demo/hashcat-example.PNG?raw=true)
 
-Interact with the hashcat job via "jobs interact <id>" and updates will be delivered every 10 seconds:
+Interact with the hashcat job via "jobs interact \<id\>" and updates will be delivered every 10 seconds:
   
 ![hashcat demo 2](https://github.com/headszot/PowerSignal/blob/main/demo/hashcat-example-complete.PNG?raw=true)
