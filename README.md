@@ -43,3 +43,5 @@ In the response, locate your desired group and extract the id. Add this string t
 ## Demo
   
 Spawning a new powershell process and interacting with it via Signal:
+  
+![Powershell demo](https://github.com/headszot/PowerSignal/blob/main/demo/signal-ps-demo.png?raw=true)
