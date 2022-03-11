@@ -57,7 +57,9 @@ public class MsgThread implements Runnable
 			return;
 		} 
 		catch (IOException e) {
-			e.printStackTrace();
+			String err = String.format("Failed to connect to %s:%d",host,port);
+			Logger.log(Level.CRITICAL, String.format("Failed to connect to %s:%d",host,port));
+			System.err.println(err);
 		}
 	}
 }

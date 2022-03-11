@@ -110,6 +110,16 @@ public class MsgHandler
 		
 		String [] cmds = message.split(" ");
 		
+		//shortcut commands for jobs e.g. jr1 -> jobs read 1
+		if (cmds[0].toLowerCase().matches("j[risk][0-9]") && cmds.length == 1)
+		{
+			String shorthand = cmds[0].toLowerCase();
+			//process shorthand commands
+			cmds = new String[3];
+			for (int i=0; i<cmds.length; i++)
+				cmds[i] = Character.toString(shorthand.charAt(i));
+		}
+		
 		switch (cmds[0].toLowerCase())
 		{
 		case "quit":
@@ -293,6 +303,11 @@ public class MsgHandler
 			
 		case "upload":
 		case "up":
+			if (!caller.isAdmin) {
+				sendMessage("Admin access required!");
+				return 0;
+			}
+			
 			if (cmds.length == 2)
 			{
 				//process potentially multiple uploaded files and notify for each success 
