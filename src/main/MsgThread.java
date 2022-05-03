@@ -24,18 +24,50 @@ public class MsgThread implements Runnable
 	
 	public void run()
 	{
-		try {
-			//connect to signal JSON-RPC
-			Socket sock = new Socket(host, port);
-			
-			InputStream is = sock.getInputStream();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-			
-			OutputStream os = sock.getOutputStream();
-			MsgHandler msg_h = MsgHandler.inst(os);
-			
-			Logger.log(Level.INFO, "Entering message queue");
-			
+		Socket sock = null;
+		BufferedReader reader = null;
+		MsgHandler msg_h = null;
+		InputStream is = null;
+		
+		//connection loop
+		do
+		{
+			try {
+				//connect to signal JSON-RPC
+				sock = new Socket(host, port);
+				
+				is = sock.getInputStream();
+				reader = new BufferedReader(new InputStreamReader(is));
+				
+				OutputStream os = sock.getOutputStream();
+				msg_h = MsgHandler.inst(os);
+				
+			} 
+			catch (UnknownHostException e) {
+				Logger.log(Level.CRITICAL,"Unknown host: "+host);
+				return;
+			} 
+			catch (IOException e) {
+				Logger.log(Level.CRITICAL, String.format("Failed to connect to %s:%d",host,port));
+				System.err.println(String.format("Failed to connect to %s:%d",host,port));
+				
+				//wait before retrying
+				try {
+					sock = null;
+					Thread.sleep(5000);
+					System.err.println(String.format("Retrying..."));
+				} catch (InterruptedException i) {
+					Logger.log(Level.CRITICAL, String.format("Received interrupt while starting retrying connection."));
+					return;
+				}
+			}
+		}
+		while (sock == null);
+		
+		Logger.log(Level.INFO, "Entering message queue");
+		
+		try
+		{
 			//message loop
 			while(true)
 			{
@@ -50,16 +82,11 @@ public class MsgThread implements Runnable
 				}
 			}
 			sock.close();
-			
-		} 
-		catch (UnknownHostException e) {
-			Logger.log(Level.CRITICAL,"Unknown host: "+host);
-			return;
-		} 
-		catch (IOException e) {
-			String err = String.format("Failed to connect to %s:%d",host,port);
-			Logger.log(Level.CRITICAL, String.format("Failed to connect to %s:%d",host,port));
-			System.err.println(err);
+		}
+		catch (IOException e)
+		{
+			Logger.log(Level.CRITICAL, String.format("Unexpected error! Terminating!"));
+			Logger.log(Level.CRITICAL, e.getMessage());
 		}
 	}
 }
