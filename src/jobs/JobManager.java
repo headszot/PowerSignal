@@ -90,13 +90,18 @@ public class JobManager
 	
 	public String getThreadBuf(String name)
 	{
+		Job j = job_tracker.get(name);
+		if (j == null)
+		{
+			//job with name doesnt exist
+			return null;
+		}
 		JobThread jt = job_tracker.get(name).job_thr;
 		if (jt == null)
 		{
 			//job already terminated
 			return null;
 		}
-		
 		
 		String s[] = jt.getOut();
 		StringBuilder cmdout = new StringBuilder("");
@@ -130,12 +135,12 @@ public class JobManager
 		}
 	}
 	
-	public void startThreadMonitor(String name)
+	public boolean startThreadMonitor(String name)
 	{
 		if (!job_tracker.containsKey(name))
 		{
 			System.err.println("Job thread does not exist!");
-			return;
+			return false;
 		}
 		
 		Thread monthread = new Thread(new InteractiveThread(name));
@@ -143,6 +148,7 @@ public class JobManager
 		monthread.start();
 		
 		this.activeMonitor = name;
+		return true;
 	}
 	
 	public void stopThreadMonitor(String name)

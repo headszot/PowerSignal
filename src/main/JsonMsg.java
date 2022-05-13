@@ -25,6 +25,11 @@ public class JsonMsg
 		return this.jobj.has("id");
 	}
 	
+	public String toString()
+	{
+		return jobj.toString();
+	}
+	
 	/**
 	 * Take '.' separated list of keys and return the associated property
 	 * @param props

@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Date;
 import java.util.Random;
+import java.util.Stack;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -32,6 +33,10 @@ public class MsgHandler
 	private static MsgHandler inst = null;
 	private JobManager jman = null;
 	private Random rand_src = new Random();
+	private int cmd_count = 0;
+	
+	//history
+	private Stack<String> cmd_history = null;
 	
 	private PrintWriter writer;
 	
@@ -49,6 +54,8 @@ public class MsgHandler
 		{
 			inst = new MsgHandler(os);
 			inst.jman = JobManager.init();
+			
+			inst.cmd_history = new Stack<String>();
 		}
 		return inst;
 	}
@@ -97,7 +104,7 @@ public class MsgHandler
 		if (jman.activeMonitor != null)
 		{
 			//invoking !back or !b will drop the monitor thread
-			if (message.equals("!back") || message.equals("!b"))
+			if (message.equals("!background") || message.equals("!b"))
 			{
 				jman.stopThreadMonitor(jman.activeMonitor);
 			}
@@ -119,6 +126,22 @@ public class MsgHandler
 			for (int i=0; i<cmds.length; i++)
 				cmds[i] = Character.toString(shorthand.charAt(i));
 		}
+		
+		//catch history recall
+		if (cmds[0].toLowerCase().matches("![0-9]") && cmds.length == 1)
+		{
+			int off = Integer.parseInt(cmds[0].substring(1, 2));
+			
+			message = cmd_history.get(off);
+			cmds = message.split(" ");
+		}
+		
+		//record last X supplied commands into history
+		cmd_history.push(message);
+		cmd_count += 1;
+		
+		//limit history to configured size by removing oldest entry
+		if (cmd_history.size() > Config.HIST_LIMIT) cmd_history.remove(0);
 		
 		switch (cmds[0].toLowerCase())
 		{
@@ -157,6 +180,16 @@ public class MsgHandler
 			sendMessage(msg);
 			break;
 			
+		case "h":
+		case "history":
+			String response = "";
+			for (int i=0; i<Config.HIST_LIMIT && i<cmd_count && i<cmd_history.size(); i++)
+			{
+				response += String.format("%d: %s\n", i, cmd_history.get(i));
+			}
+			sendMessage(response);
+			break;
+			
 		case "help":
 		case "?":
 			sendMessage(
@@ -164,13 +197,16 @@ public class MsgHandler
 				    + "--------------------------\\n"
 					+ "ping - check server response\\n"
 					+ "role - check user role\\n"
+					+ "reload - reload user roles\\n"
 					+ "quit - terminate bot\\n"
 					+ "ps <powershell command> - run powershell cmd\\n"
+					+ "hashcat <int> <int> - runs hashcat on uploaded file\\n"
 					+ "[download|dl] <path-to-file> - download file\\n"
 					+ "[cwd|cd] <dir> - change working directory\\n"
 					+ "pwd - print working directory\\n"
 					+ "jobs - list/interact with current jobs\\n"
 					+ "[upload|up] <dir> - uploads attached file to dir\\n"
+					+ "[history|h] - get powersignal command history\\n"
 					+ "\\n"
 					);
 			break;
@@ -257,6 +293,10 @@ public class MsgHandler
 		//file download functionality
 		case "download":
 		case "dl":
+			if (!caller.isAdmin) {
+				sendMessage("Admin access required!");
+				return 0;
+			}
 			if (cmds.length == 1)
 			{
 				msg = String.format("Usage: [download|dl] <path-to-file>");
@@ -342,7 +382,7 @@ public class MsgHandler
 						}
 						else
 						{
-							msg = String.format("Jobs: no such job %s!");
+							msg = String.format("Jobs: no such job %s!",cmds[2]);
 							sendMessage(msg);
 						}
 					}
@@ -380,7 +420,14 @@ public class MsgHandler
 						String jobname = cmds[2];
 						//retrieve all intermediate/new output from running program
 						String buf = jman.getThreadBuf(jobname);
-						sendMessage(buf);
+						if (buf == null)
+						{
+							sendMessage("The specified job does not exist");
+						}
+						else
+						{
+							sendMessage(buf);
+						}
 					}
 					else
 					{
@@ -393,7 +440,10 @@ public class MsgHandler
 					if (cmds.length > 2)
 					{
 						String jobname = cmds[2];
-						jman.startThreadMonitor(jobname);
+						if (!jman.startThreadMonitor(jobname))
+						{
+							sendMessage("The specified job does not exist");
+						}
 					}
 					else
 					{

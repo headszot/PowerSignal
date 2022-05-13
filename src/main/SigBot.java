@@ -74,8 +74,8 @@ public class SigBot
 		
 		try {
 			thr.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			Logger.log(Level.INFO, "Thread Exception:\n"+e.toString());
 		}
 		
 		Logger.log(Level.INFO, "Terminating application.");

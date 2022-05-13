@@ -15,6 +15,7 @@ public class MsgThread implements Runnable
 {
 	private String host;
 	private int port;
+	private static boolean quitting = false;
 	
 	public MsgThread(String host, int port)
 	{
@@ -24,69 +25,75 @@ public class MsgThread implements Runnable
 	
 	public void run()
 	{
-		Socket sock = null;
-		BufferedReader reader = null;
-		MsgHandler msg_h = null;
-		InputStream is = null;
-		
-		//connection loop
-		do
+		while (!quitting)
 		{
-			try {
-				//connect to signal JSON-RPC
-				sock = new Socket(host, port);
-				
-				is = sock.getInputStream();
-				reader = new BufferedReader(new InputStreamReader(is));
-				
-				OutputStream os = sock.getOutputStream();
-				msg_h = MsgHandler.inst(os);
-				
-			} 
-			catch (UnknownHostException e) {
-				Logger.log(Level.CRITICAL,"Unknown host: "+host);
-				return;
-			} 
-			catch (IOException e) {
-				Logger.log(Level.CRITICAL, String.format("Failed to connect to %s:%d",host,port));
-				System.err.println(String.format("Failed to connect to %s:%d",host,port));
-				
-				//wait before retrying
-				try {
-					sock = null;
-					Thread.sleep(5000);
-					System.err.println(String.format("Retrying..."));
-				} catch (InterruptedException i) {
-					Logger.log(Level.CRITICAL, String.format("Received interrupt while starting retrying connection."));
-					return;
-				}
-			}
-		}
-		while (sock == null);
-		
-		Logger.log(Level.INFO, "Entering message queue");
-		
-		try
-		{
-			//message loop
-			while(true)
+			Socket sock = null;
+			BufferedReader reader = null;
+			MsgHandler msg_h = null;
+			InputStream is = null;
+			
+			//connection loop
+			do
 			{
-				//get JSON from signal daemon
-				String json = reader.readLine();
-				JsonMsg jmsg = new JsonMsg(json);
-				
-				if (msg_h.handleMsg(jmsg) == -1)
-				{
-					Logger.log(Level.INFO, "Received quit!");
-					break;
+				try {
+					//connect to signal JSON-RPC
+					sock = new Socket(host, port);
+					
+					is = sock.getInputStream();
+					reader = new BufferedReader(new InputStreamReader(is));
+					
+					OutputStream os = sock.getOutputStream();
+					msg_h = MsgHandler.inst(os);
+					
+				} 
+				catch (UnknownHostException e) {
+					Logger.log(Level.CRITICAL,"Unknown host: "+host);
+					return;
+				} 
+				catch (IOException e) {
+					Logger.log(Level.CRITICAL, String.format("Failed to connect to %s:%d",host,port));
+					System.err.println(String.format("Failed to connect to %s:%d",host,port));
+					
+					//wait before retrying
+					try {
+						sock = null;
+						Thread.sleep(5000);
+						System.err.println(String.format("Retrying..."));
+					} catch (InterruptedException i) {
+						Logger.log(Level.CRITICAL, String.format("Received interrupt while starting retrying connection."));
+						return;
+					}
 				}
 			}
-			sock.close();
-		}
-		catch (IOException e)
-		{
-			Logger.log(Level.CRITICAL, String.format("Unexpected error! Terminating!"));
-			Logger.log(Level.CRITICAL, e.getMessage());
+			while (sock == null);
+			
+			Logger.log(Level.INFO, "Entering message queue");
+			
+			try
+			{
+				//message loop
+				while(true)
+				{
+					//get JSON from signal daemon
+					String json = reader.readLine();
+					JsonMsg jmsg = new JsonMsg(json);
+					
+					if (msg_h.handleMsg(jmsg) == -1)
+					{
+						quitting = true;
+						Logger.log(Level.INFO, "Received quit!");
+						break;
+					}
+				}
+				sock.close();
+			}
+			catch (IOException e)
+			{
+				Logger.log(Level.CRITICAL, String.format("Unexpected error! Terminating!"));
+				Logger.log(Level.CRITICAL, e.getMessage());
+			}
+			
+			//only exit if quit flag has been set
 		}
 	}
 }

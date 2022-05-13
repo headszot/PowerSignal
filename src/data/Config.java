@@ -24,6 +24,7 @@ public class Config
 	public static Path hashcat_base = null; //base path to hashcat folder
 	public static Path wordlist_base = null; //base path to wordlist folder
 	public static Path log_path = null; //path to log file
+	public final static int HIST_LIMIT = 10;
 	
 	public static boolean configured = false; //flag indicating that group member information has been processed
 	public HashMap<String,Member> members = null; //hashmap of group members
@@ -99,10 +100,11 @@ public class Config
 				//process members first
 				JSONArray members = group.getJSONArray("members");
 				for (int j=0; j<members.length(); j++)
-				{
+				{					
 					JSONObject member = members.getJSONObject(j);
 					String uuid = member.getString("uuid");
-					String number = member.getString("number");
+					//fix for number returning null for machine account
+					String number = member.isNull("member") ? "" : member.getString("number");
 					Member m = new Member(uuid, number);
 					
 					Config.init().members.put(uuid, m);
